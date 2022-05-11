@@ -49,7 +49,7 @@
 // try{
 // latitude = APIGoogle.buscaLatitude(endereco);
 // longitude = APIGoogle.buscaLongitude(endereco);
-// }catch(Exception e){
+// }catch(Exception ){
 // print(“ A api causou um erro, a mensagem é: ” + e.toString());
 // }
 
@@ -64,3 +64,8 @@
 // Implemente o try-catch (com relevância) em nas funções do seu projeto. Analise o seu projeto e crie exceções específicas que facilite a localização e a manutenção do projeto.
 // R: Criei um menu, e a classe Produto. A partir da classe produto, o usuário pode verificar a lista de produtos cadastrados (atualmente está hard-coded, colocado diretamente no código), e pode selecionar um dos produtos no menu, a escolha é através do ID para facilitar a utilização do programa via console. Caso não encontre o ID do produto dentro da lista, uma exceção deve ser lançada. 
 // Essa função pode ser encontrada na classe : funcoes_menu.dart, localizada na pasta do projeto_principal.
+
+//16) O que é e para que serve o Either? Qual a relação e qual a diferença com o try-cath? Faça um exemplo no contexto do seu projeto.
+//
+// R: O either ele serve quando você tem uma classe com duas variaveis de qualquer tipo(int,string,double) dentro, e quando uma delas existem, a outra não pode existir.
+// Foi realizado na classe funcoes_menu, o método: TestaEither para verificar se um cupom é de um tipo ou de outro.

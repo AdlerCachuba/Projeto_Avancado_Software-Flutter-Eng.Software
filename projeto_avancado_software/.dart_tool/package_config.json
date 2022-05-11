@@ -62,6 +62,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "dartz",
+      "rootUri": "file:///C:/Users/adlerReserva/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/dartz-0.9.2",
+      "packageUri": "lib/",
+      "languageVersion": "1.24"
+    },
+    {
       "name": "file",
       "rootUri": "file:///C:/Users/adlerReserva/AppData/Local/Pub/Cache/hosted/pub.dartlang.org/file-6.1.2",
       "packageUri": "lib/",
@@ -290,7 +296,7 @@
       "languageVersion": "2.15"
     }
   ],
-  "generated": "2022-05-09T03:59:32.598468Z",
+  "generated": "2022-05-11T22:50:34.261683Z",
   "generator": "pub",
   "generatorVersion": "2.16.2"
 }

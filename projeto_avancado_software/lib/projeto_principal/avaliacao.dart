@@ -90,6 +90,8 @@ List<CupomDesconto> listaCuponsDoSistema = [
   CupomDesconto(identificadorDoCupom: "ArKlPm", valorDoDesconto: 5, isValido: true),
 ];
 
+NotaFiscal notaFiscal1001 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: true, isCancelada: false, isReemisao: false);
+
 
 // De acordo com o Domínio de Negócio/Escopo do seu projeto (tem que ser único - diferente dos colegas e do exemplo de aula),
 // elaborar 10 funções correlatas que tratem regras de negócio ou que de suporte a requisitos do projeto.
@@ -234,4 +236,57 @@ void confereValorFaturaENotaFiscal(NotaFiscal notaFiscal, Fatura fatura){
 /////////////////////////////////////////////////////////
 //////////////////////Funcao 06/////////////////////////
 /////////////////////////////////////////////////////////
+// É uma função com parâmetros obrigatórios e
+// nomeados que são responsáveis por validar a NotaFiscal
+// Nele é passado uma função, que vai realizar a validação.
+
+NotaFiscal validaNotaFiscal({
+  required NotaFiscal notaFiscal,
+  required Function(NotaFiscal) validacaoNotaFiscal,
+}) {
+  if (!validacaoNotaFiscal(notaFiscal)) {
+      throw new Exception("NotaFiscal Inválida.");
+  }
+  return notaFiscal;
+}
+
+/////////////////////////////////////////////////////////
+//////////////////////Funcao 07/////////////////////////
+/////////////////////////////////////////////////////////
+// Para validação é necessário que ela tenha sido emitida, e não pode ter sido cancelada.
+// Então usamos uma arrow function, que é responsável por verificar as duas condições
+var x = validaNotaFiscal(
+  notaFiscal: notaFiscal1001,
+  validacaoNotaFiscal: (nf) => (nf.isCancelada != true && nf.isEmitida!=false),
+);
+
+
+/////////////////////////////////////////////////////////
+//////////////////////Funcao 08/////////////////////////
+/////////////////////////////////////////////////////////
+// Uma função responsável por alterar a configuração fiscal do contra lançamento
+// Quando é ligado o ABATIMENTOFISCAL do contra lançamento significa que esse valor irá interferir na fatura
+// E também na somatória de valores da notaFiscal.É uma função com parâmetro nomeado obrigatório (contraLancamento)
+ContraLancamento alteraConfiguracaoFiscal({
+  required ContraLancamento contraLancamento,
+}) {
+  contraLancamento.abatimentoFiscal= true;
+  return contraLancamento;
+}
+
+
+/////////////////////////////////////////////////////////
+//////////////////////Funcao 09/////////////////////////
+/////////////////////////////////////////////////////////
+//Função responsável por receber um ContraLancamento e e devolver um CréditoFiscal
+//Só é permitido devolver um crédito fiscal se o abatimentoFiscal desse contraLancamento estiver como TRUE
+CreditoFiscal criaCreditoFiscalAPartirDeContraLancamento(ContraLancamento contraLancamento){
+  if(!contraLancamento.abatimentoFiscal==true) {
+    throw new Exception();
+  }
+  CreditoFiscal creditoFiscal = CreditoFiscal(
+      valorFiscal: contraLancamento.valorContraLancamento);
+  return creditoFiscal;
+}
+
 

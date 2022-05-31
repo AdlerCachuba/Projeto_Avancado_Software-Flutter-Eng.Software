@@ -116,13 +116,15 @@ NotaFiscal notaFiscal1001 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmit
 /////////////////////////////////////////////////////////
 //Criar função para criar o cupom de desconto e adicionar na lista de cupons válidos
 //É passado por parametro a lista dos cupons válidos a ser adicionado, e o valor do cupom que deseja ser criado.
-void criaCupomDeDesconto(List<CupomDesconto> listaDeCuponsValidos, double valorDoCupom){
+//E retorna o cupom de desconto
+CupomDesconto criaCupomDeDesconto(List<CupomDesconto> listaDeCuponsValidos, double valorDoCupom){
   CupomDesconto cupomDesconto = CupomDesconto(
       identificadorDoCupom: gerarCodigoAleatorioConformeTamanho(tamanho: 5),
       valorDoDesconto: valorDoCupom,
       isValido: true
   );
   listaDeCuponsValidos.add(cupomDesconto);
+  return cupomDesconto;
 }
 // A gente passa o tamanho do código que vamos querer, se o usuário não informar por padrão será 8.
 // E geramos um código aleatório do cupom

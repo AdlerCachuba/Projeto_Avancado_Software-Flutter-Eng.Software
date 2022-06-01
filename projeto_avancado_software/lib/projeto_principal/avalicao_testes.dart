@@ -10,11 +10,18 @@ void main() {
     CupomDesconto(identificadorDoCupom: "ArKlPm", valorDoDesconto: 5, isValido: true),
   ];
   NotaFiscal notaFiscal1001 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: true, isCancelada: false, isReemisao: false);
+  NotaFiscal notaFiscal4004 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: false, isCancelada: true, isReemisao: false);
+
   Fatura faturaComValor100 = Fatura(valorFaturaTotal: 100);
+  Fatura faturaComValor200 = Fatura(valorFaturaTotal: 200);
   Produto internet100mb = Produto(nome: "Internet 100mbs", impostoISS: 0, impostoICMS: 50);
   Produto instalacaoInternet = Produto(nome: "Instalacao internet", impostoISS: 50, impostoICMS: 0);
   DescontoFiscal descontoFiscalICMS = DescontoFiscal(descontoImpostoISS: 0, descontoImpostoICMS: 10);
   DescontoFiscal descontoFiscalISS = DescontoFiscal(descontoImpostoISS: 10, descontoImpostoICMS: 0);
+  ContraLancamento contraLancamentoComAbatimentoFiscal = ContraLancamento(valorContraLancamento: 20, abatimentoFiscal: true);
+  ContraLancamento contraLancamentoSemAbatimentoFiscal = ContraLancamento(valorContraLancamento: 20, abatimentoFiscal: false);
+  ContraLancamento contraLancamentoComAbatimentoFiscalValorSuperior = ContraLancamento(valorContraLancamento: 90000, abatimentoFiscal: true);
+  ContraLancamento contraLancamentoSemAbatimentoFiscalValorSuperior = ContraLancamento(valorContraLancamento: 90000, abatimentoFiscal: false);
 
   //TESTE PARA FUNÇÃO 01 - CRIA CUPOM DE DESCONTO
   group('Testa o método que gera o cupom', (){
@@ -92,6 +99,118 @@ void main() {
     });
   });
 
+  //TESTE PARA FUNÇÃO 04 -
+// Todos os contras lançamentos que possuem abatimentoFiscal como true irão descontar o imposto ISS da NF.
+// Todos contra-lançamentos abatem no valor da fatura.
+// Caso o contraLançamento NÃO SEJA VALIDADO será gerado uma exceção.
+//A função retornar a classe ValoresFaturaNFISSeNFICMS usada para armazenar os valores quando aplicado um contra lançamento.
+//
+//  O motivo de existir essa classe de retorno é : Retornar dados que são armazenados no histórico após
+//  usar um contra lançamento, útil para possiveis auditorias e também facilita para testar a função
+
+  group('ContraLancamento COM abatimento fiscal', (){
+    test('Testa se o valor abateu na fatura', () {
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoComAbatimentoFiscal,notaFiscal1001,faturaComValor100)?.valorFatura,80 );
+    });
+    test('Testa se o valor abateu na NF ISS', () {
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoComAbatimentoFiscal,notaFiscal1001,faturaComValor100)?.valorNFISS,80 );
+    });
+    test('Testa se o valor abateu na NF ICMS', () {
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoComAbatimentoFiscal,notaFiscal1001,faturaComValor100)?.valorNFICMS,100 );
+    });
+  });
+
+  group('ContraLancamento SEM abatimento fiscal', (){
+    test('Testa se o valor abateu na fatura', () {
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoSemAbatimentoFiscal,notaFiscal1001,faturaComValor100)?.valorFatura,80 );
+    });
+    test('Testa se o valor abateu na NF ISS', () {
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoSemAbatimentoFiscal,notaFiscal1001,faturaComValor100)?.valorNFISS,100 );
+    });
+    test('Testa se o valor abateu na NF ICMS', () {
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoSemAbatimentoFiscal,notaFiscal1001,faturaComValor100)?.valorNFICMS,100 );
+    });
+  });
+
+  group('ContraLancamento que não são válidos e geram erros', (){
+    test('Testa com o contra lançamento sem abatimento fiscal com valor superior a NF e Fatura', () {
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoSemAbatimentoFiscalValorSuperior,notaFiscal1001,faturaComValor100),Exception("Valor do Contra Lançamento Maior que a Fatura e/ou a NotaFiscal"));
+    });
+    test('Testa com o contra lançamento com abatimento fiscal com valor superior a NF e Fatura', () {
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoComAbatimentoFiscalValorSuperior,notaFiscal1001,faturaComValor100),Exception("Valor do Contra Lançamento Maior que a Fatura e/ou a NotaFiscal"));
+    });
+  });
+
+  group('Testes de Validação de ContraLancamentos', (){
+    test('Testa se o contra lançamento sem abatimento fiscal é válido ', () {
+      expect(validaContraLancamento(contraLancamentoSemAbatimentoFiscal,notaFiscal1001,faturaComValor100),true);
+    });
+    test('Testa se o contra lançamento com abatimento fiscal é válido', () {
+      expect(validaContraLancamento(contraLancamentoComAbatimentoFiscal,notaFiscal1001,faturaComValor100),true);
+    });
+    test('Testa que o contra lançamento sem abatimento fiscal com valor maior que a fatura e a nota fiscal não é válido', () {
+      expect(validaContraLancamento(contraLancamentoSemAbatimentoFiscalValorSuperior,notaFiscal1001,faturaComValor100),false);
+    });
+    test('Testa que o contra lançamento com abatimento fiscal com valor maior que a fatura e a nota fiscal não é válido', () {
+      expect(validaContraLancamento(contraLancamentoComAbatimentoFiscalValorSuperior,notaFiscal1001,faturaComValor100),false);
+    });
+  });
+
+  //TESTE PARA FUNÇÃO 05 -
+  // UMA NOTA FISCAL SÓ PODE SER RE-EMITIDA SE O VALOR DA FATURA E DE um dos valores de imposto da NOTA FISCAL FOREM IGUAIS!
+// Caso contrário é obrigatório gerar uma exceção.
+// Quando nós fazemos uma re-emição da nota fiscal nós alteramos o atributo da nota fiscal anterior de isCancelada para true.
+// E emitimos uma nova nota fiscal, com o atributo de isReemisao para true.
+// Isso é utilizado para o envio de pulsos de comunicação com o SAP para valida o CAR (Contas a receber)
+
+  group('Testes de Reemisao da nota fiscal', (){
+    test('Testa se a nova nota fiscal criada foi emitida', () {
+      expect(reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor100, 50, 50).isEmitida,true);
+    });
+    test('Testa se a nova nota fiscal criada possui o valor de imposto ISS novo', () {
+      expect(reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor100, 50, 50).impostoISS,50);
+    });
+    test('Testa se a nova nota fiscal criada possui o valor de imposto ICMS novo', () {
+      expect(reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor100, 50, 50).impostoICMS,50);
+    });
+    test('Testa se a nova nota fiscal criada possui o atributo isReemisao como true', () {
+      expect(reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor100, 50, 50).isReemisao,true);
+    });
+    test('Testa se a nova nota fiscal criada possui o atributo isCancelada como false', () {
+      expect(reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor100, 50, 50).isCancelada,false);
+    });
+  });
+
+  group('Testes que geram erro na Reemisao da nota fiscal', (){
+    test('Fatura com valor diferente dos valores da nota fiscal', () {
+      expect(reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor200, 50, 50),Exception("Violou uma das regras de negócio, operação de reemisão negada."));
+    });
+  });
+
+
+  //TESTES PARA FUNÇÃO 06 e 07
+  // É uma função com parâmetros obrigatórios e
+// nomeados que são responsáveis por validar a NotaFiscal
+// Nele é passado uma função, que vai realizar a validação.
+  group('Testes responsáveis por validar a notaFiscal ', (){
+    test('Teste usando a arrow function para validar que a nota não foi cancelada e sim emitida', () {
+      expect(validaNotaFiscal(
+        notaFiscal: notaFiscal1001,
+        validacaoNotaFiscal: (nf) => (nf.isCancelada != true && nf.isEmitida!=false),
+      ),true);
+    });
+  });
+
+
+// Para validação é necessário que ela tenha sido emitida, e não pode ter sido cancelada.
+  group('Testes responsáveis por gerar exceção na validação da notaFiscal ', (){
+    test('Teste que gera exceção ao tentar validar a nota fiscal', () {
+      expect(validaNotaFiscal(
+        notaFiscal: notaFiscal4004,
+        validacaoNotaFiscal: (nf) => (nf.isCancelada != true && nf.isEmitida!=false),
+      ),Exception("NotaFiscal Inválida."));
+    });
+  });
 
 
 }

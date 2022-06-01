@@ -86,6 +86,17 @@ class Credito{
 });
 }
 
+class ValoresFaturaNFISSeNFICMS{
+  double valorFatura;
+  double valorNFISS;
+  double valorNFICMS;
+  ValoresFaturaNFISSeNFICMS({
+    required this.valorFatura,
+    required this.valorNFISS,
+    required this.valorNFICMS,
+  });
+}
+
 List<CupomDesconto> listaCuponsDoSistema = [
   CupomDesconto(identificadorDoCupom: "ArKlPm", valorDoDesconto: 5, isValido: true),
 ];
@@ -170,25 +181,25 @@ NotaFiscal emiteNotaFiscalDoProduto({required Produto produto, DescontoFiscal? d
 /////////////////////////////////////////////////////////
 //////////////////////Funcao 04 /////////////////////////
 /////////////////////////////////////////////////////////
-// Todos os contras lançamentos relacionado ao imposto de ISS recebe o abatimentoFiscal como true.
-// Logo, se o contralançamento possui o abatimento fiscal, esse desconto deve ser aplicado no impostoISS da nota fiscal
-// E também no valor da fatura, caso o contraLançamento NÃO SEJA VALIDADO será gerado uma exceção.
-List<double>? aplicaContraLancamentoNaNotaFiscal(ContraLancamento contraLancamento, NotaFiscal notaFiscal, Fatura fatura){
-  List<double> listaValoresDa_Fatura_NFISS_eNFICMS = [];
+// Todos os contras lançamentos que possuem abatimentoFiscal como true irão descontar o imposto ISS da NF.
+// Todos contra-lançamentos abatem no valor da fatura.
+// Caso o contraLançamento NÃO SEJA VALIDADO será gerado uma exceção.
+//A função retornar a classe ValoresFaturaNFISSeNFICMS usada para armazenar os valores quando aplicado um contra lançamento.
+//
+// O motivo de existir essa classe de retorno é : Retornar dados que são armazenados no histórico após
+// usar um contra lançamento, útil para possiveis auditorias e também facilita para testar a função
+ValoresFaturaNFISSeNFICMS? aplicaContraLancamentoNaFaturaENotaFiscal(ContraLancamento contraLancamento, NotaFiscal notaFiscal, Fatura fatura){
   try {
     if (validaContraLancamento(contraLancamento, notaFiscal, fatura)) {
-      if (contraLancamento.abatimentoFiscal) {
+      if ((contraLancamento.abatimentoFiscal) && (contraLancamento.valorContraLancamento < notaFiscal.impostoISS)) {
         notaFiscal.impostoISS -= contraLancamento.valorContraLancamento;
       }
       fatura.valorFaturaTotal -= contraLancamento.valorContraLancamento;
-
-      listaValoresDa_Fatura_NFISS_eNFICMS.add(fatura.valorFaturaTotal);
-      listaValoresDa_Fatura_NFISS_eNFICMS.add(notaFiscal.impostoISS);
-      listaValoresDa_Fatura_NFISS_eNFICMS.add(notaFiscal.impostoICMS);
-
-      return listaValoresDa_Fatura_NFISS_eNFICMS;
+      //Classe criada para armazenar os valores após o ContraLancamento na nota fiscal.
+      ValoresFaturaNFISSeNFICMS valoresFaturaNFISSeNFICMS = ValoresFaturaNFISSeNFICMS(valorFatura: fatura.valorFaturaTotal, valorNFISS: notaFiscal.impostoISS, valorNFICMS: notaFiscal.impostoICMS);
+      return valoresFaturaNFISSeNFICMS;
     } else {
-      throw new Exception();
+      throw new Exception("Valor do Contra Lançamento Maior que a Fatura e/ou a NotaFiscal");
     }
   }catch(Exception){
   }
@@ -210,12 +221,11 @@ bool validaContraLancamento(ContraLancamento contraLancamento, NotaFiscal notaFi
 //////////////////////Funcao 05 /////////////////////////
 /////////////////////////////////////////////////////////
 // Função responsável pela re-emição da nota fiscal
-// UMA NOTA FISCAL SÓ PODE SER RE-EMITIDA SE O VALOR DA FATURA E DA NOTA FISCAL FOREM IGUAIS!
+// UMA NOTA FISCAL SÓ PODE SER RE-EMITIDA SE O VALOR DA FATURA E DE um dos valores de imposto da NOTA FISCAL FOREM IGUAIS!
 // Caso contrário é obrigatório gerar uma exceção.
-// Para re-emetir uma nota fiscal é necessário que ela já tenha sido emitida
 // Quando nós fazemos uma re-emição da nota fiscal nós alteramos o atributo da nota fiscal anterior de isCancelada para true.
 // E emitimos uma nova nota fiscal, com o atributo de isReemisao para true.
-// Isso é utilizado para o envio de pulsos de comunicação com o SAP.
+// Isso é utilizado para o envio de pulsos de comunicação com o SAP para valida o CAR (Contas a receber)
 NotaFiscal reemissaoDaNotaFiscal(NotaFiscal notaFiscalInicial,Fatura fatura, double impostoISSNovo, double impostoICMSNovo){
     confereValorFaturaENotaFiscal(notaFiscalInicial, fatura);
       notaFiscalInicial.isCancelada = true;
@@ -230,7 +240,7 @@ NotaFiscal reemissaoDaNotaFiscal(NotaFiscal notaFiscalInicial,Fatura fatura, dou
 //Regra de negócio: responsável por verificar se os valor da fatura é igual a pelo menos UM dos impostos da nota fiscal.
 void confereValorFaturaENotaFiscal(NotaFiscal notaFiscal, Fatura fatura){
   if(!(notaFiscal.impostoISS == fatura.valorFaturaTotal || notaFiscal.impostoICMS == fatura.valorFaturaTotal)){
-    throw new Exception();
+    throw new Exception("Violou uma das regras de negócio, operação de reemisão negada.");
   }
 }
 
@@ -242,14 +252,14 @@ void confereValorFaturaENotaFiscal(NotaFiscal notaFiscal, Fatura fatura){
 // nomeados que são responsáveis por validar a NotaFiscal
 // Nele é passado uma função, que vai realizar a validação.
 
-NotaFiscal validaNotaFiscal({
+bool validaNotaFiscal({
   required NotaFiscal notaFiscal,
   required Function(NotaFiscal) validacaoNotaFiscal,
 }) {
   if (!validacaoNotaFiscal(notaFiscal)) {
       throw new Exception("NotaFiscal Inválida.");
   }
-  return notaFiscal;
+  return true;
 }
 
 /////////////////////////////////////////////////////////
@@ -257,6 +267,7 @@ NotaFiscal validaNotaFiscal({
 /////////////////////////////////////////////////////////
 // Para validação é necessário que ela tenha sido emitida, e não pode ter sido cancelada.
 // Então usamos uma arrow function, que é responsável por verificar as duas condições
+// Aqui poderiamos usar qualquer outra verificação da nota fiscal
 var x = validaNotaFiscal(
   notaFiscal: notaFiscal1001,
   validacaoNotaFiscal: (nf) => (nf.isCancelada != true && nf.isEmitida!=false),

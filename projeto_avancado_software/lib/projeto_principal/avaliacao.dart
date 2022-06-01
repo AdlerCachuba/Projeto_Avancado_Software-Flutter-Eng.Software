@@ -189,7 +189,7 @@ NotaFiscal emiteNotaFiscalDoProduto({required Produto produto, DescontoFiscal? d
 // O motivo de existir essa classe de retorno é : Retornar dados que são armazenados no histórico após
 // usar um contra lançamento, útil para possiveis auditorias e também facilita para testar a função
 ValoresFaturaNFISSeNFICMS? aplicaContraLancamentoNaFaturaENotaFiscal(ContraLancamento contraLancamento, NotaFiscal notaFiscal, Fatura fatura){
-  try {
+
     if (validaContraLancamento(contraLancamento, notaFiscal, fatura)) {
       if ((contraLancamento.abatimentoFiscal) && (contraLancamento.valorContraLancamento < notaFiscal.impostoISS)) {
         notaFiscal.impostoISS -= contraLancamento.valorContraLancamento;
@@ -199,10 +199,9 @@ ValoresFaturaNFISSeNFICMS? aplicaContraLancamentoNaFaturaENotaFiscal(ContraLanca
       ValoresFaturaNFISSeNFICMS valoresFaturaNFISSeNFICMS = ValoresFaturaNFISSeNFICMS(valorFatura: fatura.valorFaturaTotal, valorNFISS: notaFiscal.impostoISS, valorNFICMS: notaFiscal.impostoICMS);
       return valoresFaturaNFISSeNFICMS;
     } else {
-      throw new Exception("Valor do Contra Lançamento Maior que a Fatura e/ou a NotaFiscal");
+       throw Exception("Valor do Contra Lançamento Maior que a Fatura e/ou a NotaFiscal");
     }
-  }catch(Exception){
-  }
+
 }
 
 //Função responsável por validar o contra lançamento.
@@ -240,7 +239,7 @@ NotaFiscal reemissaoDaNotaFiscal(NotaFiscal notaFiscalInicial,Fatura fatura, dou
 //Regra de negócio: responsável por verificar se os valor da fatura é igual a pelo menos UM dos impostos da nota fiscal.
 void confereValorFaturaENotaFiscal(NotaFiscal notaFiscal, Fatura fatura){
   if(!(notaFiscal.impostoISS == fatura.valorFaturaTotal || notaFiscal.impostoICMS == fatura.valorFaturaTotal)){
-    throw new Exception("Violou uma das regras de negócio, operação de reemisão negada.");
+    throw Exception("Violou uma das regras de negócio, operação de reemisão negada.");
   }
 }
 
@@ -257,7 +256,7 @@ bool validaNotaFiscal({
   required Function(NotaFiscal) validacaoNotaFiscal,
 }) {
   if (!validacaoNotaFiscal(notaFiscal)) {
-      throw new Exception("NotaFiscal Inválida.");
+      throw Exception("NotaFiscal Inválida.");
   }
   return true;
 }
@@ -295,7 +294,7 @@ ContraLancamento alteraConfiguracaoFiscal({
 //Só é permitido devolver um crédito fiscal se o abatimentoFiscal desse contraLancamento estiver como TRUE
 CreditoFiscal criaCreditoFiscalAPartirDeContraLancamento(ContraLancamento contraLancamento){
   if(!contraLancamento.abatimentoFiscal==true) {
-    throw new Exception();
+    throw Exception();
   }
   CreditoFiscal creditoFiscal = CreditoFiscal(
       valorFiscal: contraLancamento.valorContraLancamento);

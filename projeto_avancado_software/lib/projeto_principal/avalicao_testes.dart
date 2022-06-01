@@ -10,9 +10,14 @@ void main() {
     CupomDesconto(identificadorDoCupom: "ArKlPm", valorDoDesconto: 5, isValido: true),
   ];
   NotaFiscal notaFiscal1001 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: true, isCancelada: false, isReemisao: false);
+  NotaFiscal notaFiscal1002 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: true, isCancelada: false, isReemisao: false);
+  NotaFiscal notaFiscal1003 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: true, isCancelada: false, isReemisao: false);
+
   NotaFiscal notaFiscal4004 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: false, isCancelada: true, isReemisao: false);
 
   Fatura faturaComValor100 = Fatura(valorFaturaTotal: 100);
+  Fatura outraFaturaComValor100 = Fatura(valorFaturaTotal: 100);
+  Fatura faturaCiclano = Fatura(valorFaturaTotal: 100);
   Fatura faturaComValor200 = Fatura(valorFaturaTotal: 200);
   Produto internet100mb = Produto(nome: "Internet 100mbs", impostoISS: 0, impostoICMS: 50);
   Produto instalacaoInternet = Produto(nome: "Instalacao internet", impostoISS: 50, impostoICMS: 0);
@@ -26,10 +31,10 @@ void main() {
   //TESTE PARA FUNÇÃO 01 - CRIA CUPOM DE DESCONTO
   group('Testa o método que gera o cupom', (){
     test('Verifica se o tamanho da geração do cupom padrão gera 8 identificadores.', () {
-      expect(gerarCodigoAleatorioConformeTamanho(),8 );
+      expect(gerarCodigoAleatorioConformeTamanho().length,8 );
     });
     test('Verifica se a alteração de tamanho da geração do cupom.', () {
-      expect(gerarCodigoAleatorioConformeTamanho(tamanho: 9),9 );
+      expect(gerarCodigoAleatorioConformeTamanho(tamanho: 9).length,9 );
     });
   });
 
@@ -53,7 +58,6 @@ void main() {
       expect(listaCuponsDoSistema[0].isValido, false);
     });
     test('Valida que o valor da fatura foi alterado', () {
-      validaCupomEAplicaNaFatura(listaCuponsDoSistema[0],listaCuponsDoSistema,faturaComValor100);
       expect(faturaComValor100.valorFaturaTotal,95);
     });
   });
@@ -110,34 +114,39 @@ void main() {
 
   group('ContraLancamento COM abatimento fiscal', (){
     test('Testa se o valor abateu na fatura', () {
-      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoComAbatimentoFiscal,notaFiscal1001,faturaComValor100)?.valorFatura,80 );
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoComAbatimentoFiscal,notaFiscal1001,faturaCiclano)?.valorFatura,80 );
     });
     test('Testa se o valor abateu na NF ISS', () {
-      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoComAbatimentoFiscal,notaFiscal1001,faturaComValor100)?.valorNFISS,80 );
+      //Aqui eu to aplicando a função de novo e abatendo novamente o valor
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoComAbatimentoFiscal,notaFiscal1002,outraFaturaComValor100)?.valorNFISS,80 );
     });
     test('Testa se o valor abateu na NF ICMS', () {
-      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoComAbatimentoFiscal,notaFiscal1001,faturaComValor100)?.valorNFICMS,100 );
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoComAbatimentoFiscal,notaFiscal1001,outraFaturaComValor100)?.valorNFICMS,100 );
     });
   });
 
   group('ContraLancamento SEM abatimento fiscal', (){
     test('Testa se o valor abateu na fatura', () {
-      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoSemAbatimentoFiscal,notaFiscal1001,faturaComValor100)?.valorFatura,80 );
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoSemAbatimentoFiscal,notaFiscal1001,faturaComValor100)?.valorFatura,75 );
     });
     test('Testa se o valor abateu na NF ISS', () {
-      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoSemAbatimentoFiscal,notaFiscal1001,faturaComValor100)?.valorNFISS,100 );
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoSemAbatimentoFiscal,notaFiscal1003,faturaComValor100)?.valorNFISS,100 );
     });
     test('Testa se o valor abateu na NF ICMS', () {
-      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoSemAbatimentoFiscal,notaFiscal1001,faturaComValor100)?.valorNFICMS,100 );
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoSemAbatimentoFiscal,notaFiscal1003,faturaComValor100)?.valorNFICMS,100 );
     });
   });
 
-  group('ContraLancamento que não são válidos e geram erros', (){
+  group('ContraLancamento sem abatimento fiscal que não são válidos e geram erros', (){
     test('Testa com o contra lançamento sem abatimento fiscal com valor superior a NF e Fatura', () {
-      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoSemAbatimentoFiscalValorSuperior,notaFiscal1001,faturaComValor100),Exception("Valor do Contra Lançamento Maior que a Fatura e/ou a NotaFiscal"));
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoSemAbatimentoFiscalValorSuperior,notaFiscal1001,faturaComValor100), Exception("Valor do Contra Lançamento Maior que a Fatura e/ou a NotaFiscal"));
     });
+
+  });
+
+  group('ContraLancamento com abatimento fiscal que não são válidos e geram erros', (){
     test('Testa com o contra lançamento com abatimento fiscal com valor superior a NF e Fatura', () {
-      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoComAbatimentoFiscalValorSuperior,notaFiscal1001,faturaComValor100),Exception("Valor do Contra Lançamento Maior que a Fatura e/ou a NotaFiscal"));
+      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoComAbatimentoFiscalValorSuperior,notaFiscal1001,faturaComValor100), Exception("Valor do Contra Lançamento Maior que a Fatura e/ou a NotaFiscal"));
     });
   });
 
@@ -183,7 +192,7 @@ void main() {
 
   group('Testes que geram erro na Reemisao da nota fiscal', (){
     test('Fatura com valor diferente dos valores da nota fiscal', () {
-      expect(reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor200, 50, 50),Exception("Violou uma das regras de negócio, operação de reemisão negada."));
+      expect(reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor200, 50, 50), Exception("Violou uma das regras de negócio, operação de reemisão negada."));
     });
   });
 
@@ -208,7 +217,7 @@ void main() {
       expect(validaNotaFiscal(
         notaFiscal: notaFiscal4004,
         validacaoNotaFiscal: (nf) => (nf.isCancelada != true && nf.isEmitida!=false),
-      ),Exception("NotaFiscal Inválida."));
+      ),throw Exception("NotaFiscal Inválida."));
     });
   });
 

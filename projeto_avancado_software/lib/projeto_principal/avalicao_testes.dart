@@ -1,34 +1,9 @@
 
 import 'avaliacao.dart';
-import 'avaliacao.dart';
+import 'objetos_teste.dart';
 import 'package:test/test.dart';
 
 void main() {
-
-  CupomDesconto cupomDescontoTeste = CupomDesconto(identificadorDoCupom: "xawerqt", valorDoDesconto: 20, isValido: true);
-  List<CupomDesconto> listaCuponsDoSistema = [
-    CupomDesconto(identificadorDoCupom: "ArKlPm", valorDoDesconto: 5, isValido: true),
-  ];
-  NotaFiscal notaFiscal1001 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: true, isCancelada: false, isReemisao: false);
-  NotaFiscal notaFiscal1002 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: true, isCancelada: false, isReemisao: false);
-  NotaFiscal notaFiscal1003 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: true, isCancelada: false, isReemisao: false);
-  NotaFiscal notaFiscal1004 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: true, isCancelada: false, isReemisao: false);
-
-  NotaFiscal notaFiscal4004 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: false, isCancelada: true, isReemisao: false);
-
-  Fatura faturaComValor100 = Fatura(valorFaturaTotal: 100);
-  Fatura outraFaturaComValor100 = Fatura(valorFaturaTotal: 100);
-  Fatura faturaCiclano = Fatura(valorFaturaTotal: 100);
-  Fatura faturaComValor200 = Fatura(valorFaturaTotal: 200);
-  Produto internet100mb = Produto(nome: "Internet 100mbs", impostoISS: 0, impostoICMS: 50);
-  Produto instalacaoInternet = Produto(nome: "Instalacao internet", impostoISS: 50, impostoICMS: 0);
-  DescontoFiscal descontoFiscalICMS = DescontoFiscal(descontoImpostoISS: 0, descontoImpostoICMS: 10);
-  DescontoFiscal descontoFiscalISS = DescontoFiscal(descontoImpostoISS: 10, descontoImpostoICMS: 0);
-  ContraLancamento contraLancamentoComAbatimentoFiscal = ContraLancamento(valorContraLancamento: 20, abatimentoFiscal: true);
-  ContraLancamento contraLancamentoSemAbatimentoFiscal = ContraLancamento(valorContraLancamento: 20, abatimentoFiscal: false);
-  ContraLancamento contraLancamentoComAbatimentoFiscalValorSuperior = ContraLancamento(valorContraLancamento: 90000, abatimentoFiscal: true);
-  ContraLancamento contraLancamentoSemAbatimentoFiscalValorSuperior = ContraLancamento(valorContraLancamento: 90000, abatimentoFiscal: false);
-
   //TESTE PARA FUNÇÃO 01 - CRIA CUPOM DE DESCONTO
   group('Testa o método que gera o cupom', (){
     test('Verifica se o tamanho da geração do cupom padrão gera 8 identificadores.', () {
@@ -175,26 +150,26 @@ void main() {
 
   group('Testes de Reemisao da nota fiscal', (){
     test('Testa se a nova nota fiscal criada foi emitida', () {
-      expect(reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor100, 50, 50).isEmitida,true);
+      expect(reemissaoDaNotaFiscal(notaFiscal7007, faturaBeltrano, 50, 50).isEmitida,true);
     });
     test('Testa se a nova nota fiscal criada possui o valor de imposto ISS novo', () {
-      expect(reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor100, 50, 50).impostoISS,50);
+      expect(reemissaoDaNotaFiscal(notaFiscal8008, faturaBeltrano, 50, 50).impostoISS,50);
     });
     test('Testa se a nova nota fiscal criada possui o valor de imposto ICMS novo', () {
-      expect(reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor100, 50, 50).impostoICMS,50);
+      expect(reemissaoDaNotaFiscal(notaFiscal9009, faturaBeltrano, 50, 50).impostoICMS,50);
     });
     test('Testa se a nova nota fiscal criada possui o atributo isReemisao como true', () {
-      expect(reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor100, 50, 50).isReemisao,true);
+      expect(reemissaoDaNotaFiscal(notaFiscal9999, faturaBeltrano, 50, 50).isReemisao,true);
     });
     test('Testa se a nova nota fiscal criada possui o atributo isCancelada como false', () {
-      expect(reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor100, 50, 50).isCancelada,false);
+      expect(reemissaoDaNotaFiscal(notaFiscal9989, faturaBeltrano, 50, 50).isCancelada,false);
     });
   });
 
   // aqui espera uma Instance of 'Exception', não consegui arrumar isso
   group('Testes que geram erro na Reemisao da nota fiscal', (){
     test('Fatura com valor diferente dos valores da nota fiscal', () {
-      expect(()=> reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor200, 50, 50),throwsException);
+      expect(()=> reemissaoDaNotaFiscal(notaFiscal6006, faturaComValor200, 50, 50),throwsException);
     });
   });
 
@@ -224,4 +199,58 @@ void main() {
   });
 
 
+  //TESTES PARA FUNÇÃO 08
+  //Esses testes poderiam ser muito bem utilizados em simulações de teste de caixa preta.
+  group('Testes responsáveis por testar a invalidação do cupom ', (){
+    test('Valida que invalidou', () {
+      expect( invalidaOCupomDeDesconto(cupomDesconto: cupomDesconto1010).isValido,false);
+    });
+    test('Valida que não mudou o identificador', () {
+      expect( invalidaOCupomDeDesconto(cupomDesconto: cupomDesconto1010).identificadorDoCupom,"1010");
+    });
+    test('Valida que não mudou o valor do desconto', () {
+      expect(invalidaOCupomDeDesconto(cupomDesconto: cupomDesconto1010).valorDoDesconto,10);
+    });
+  });
+
+  //Testes garantindo que a função de administrador funciona como deve.
+  //É comum em projetos ter uma função que permite tudo, para eventuais testes
+  //Em ambientes de homologação principalmente.
+  group('Testando a função de administrador ', (){
+    obrigaOSistemaAceitarOCupomDescontoNaFatura(cupomDesconto2030, faturaComValor50);
+    test('Valida que absorveu o cupom de desconto na fatura e a fatura ficou com valor negativo', () {
+      expect(faturaComValor50.valorFaturaTotal,-50);
+    });
+    test('Valida que o cupom está inválido após o uso', () {
+      expect( cupomDesconto2030.isValido,false);
+    });
+  });
+
+  //TESTES PARA FUNÇÃO 09
+  //Função responsável por receber um ContraLancamento e e devolver um CréditoFiscal
+//Só é permitido devolver um crédito fiscal se o abatimentoFiscal desse contraLancamento estiver como TRUE
+//  criaCreditoFiscalAPartirDeContraLancamento
+  group('Testando a criação de crédito fiscal a partir de um contra lançamento', (){
+   test('Valida que a criação do e crédito e o valor, a partir de um contra lançamento com abatimento fiscal', () {
+      expect(criaCreditoFiscalAPartirDeContraLancamento(contraLancamentoComAbatimentoFiscal1002).valorFiscal,20);
+    });
+  });
+
+  group('Testando a exceção quando tenta executar a criação de crédito fiscal a partir de um contra lançamento', (){
+    test('Valida que a exceção, a partir de um contra lançamento sem abatimento fiscal', () {
+      expect(()=>criaCreditoFiscalAPartirDeContraLancamento(contraLancamentoSemAbatimentoFiscal1003),throwsException);
+    });
+  });
+
+  //TESTES PARA FUNÇÃO 10
+  //notaFiscalInvalida1001
+
+  group('Testando a validação da nota fiscal', (){
+    test('Testa se a nota fiscal é válida', () {
+      expect(validaNotaFiscal(notaFiscal: notaFiscal5005,validacaoNotaFiscal: validaNotaPorCompleto),true);
+    });
+    test('Testa que a ntoa fiscal é inválida', () {
+      expect(()=>validaNotaFiscal(notaFiscal: notaFiscalInvalida1001,validacaoNotaFiscal: validaNotaPorCompleto),throwsException);
+    });
+  });
 }

@@ -1,108 +1,5 @@
-import 'dart:io';
 import 'dart:math';
-
-class CupomDesconto {
-  String identificadorDoCupom;
-  double valorDoDesconto;
-  bool isValido;
-  CupomDesconto({
-    required this.identificadorDoCupom,
-    required this.valorDoDesconto,
-    required this.isValido,
-  });
-}
-
-class Produto {
-  String nome;
-  double impostoISS;
-  double impostoICMS;
-  Produto({
-    required this.nome,
-    required this.impostoISS,
-    required this.impostoICMS,
-  });
-}
-
-class DescontoFiscal {
-  double descontoImpostoISS;
-  double descontoImpostoICMS;
-  DescontoFiscal({
-    required this.descontoImpostoISS,
-    required this.descontoImpostoICMS,
-  });
-}
-
-class NotaFiscal {
-  double impostoISS;
-  double impostoICMS;
-  bool isEmitida;
-  bool isCancelada;
-  bool isReemisao;
-  NotaFiscal({
-    required this.impostoISS,
-    required this.impostoICMS,
-    required this.isEmitida,
-    required this.isCancelada,
-    required this.isReemisao,
-  });
-}
-
-class Fatura{
-  double valorFaturaTotal;
-  Fatura({
-    required this.valorFaturaTotal,
-});
-}
-
-class ContraLancamento{
-  double valorContraLancamento;
-  bool abatimentoFiscal;
-  ContraLancamento({
-    required this.valorContraLancamento,
-    required this.abatimentoFiscal,
-});
-}
-
-class CreditoFiscal{
-  double valorFiscal;
-  CreditoFiscal({
-    required this.valorFiscal,
-  });
-}
-
-class CreditoFinanceiro{
-  double valorFinanceiro;
-  CreditoFinanceiro({
-    required this.valorFinanceiro,
-  });
-}
-
-class Credito{
-  CreditoFinanceiro creditoFinanceiro;
-  CreditoFiscal creditoFiscal;
-  Credito({
-    required this.creditoFiscal,
-    required this.creditoFinanceiro,
-});
-}
-
-class ValoresFaturaNFISSeNFICMS{
-  double valorFatura;
-  double valorNFISS;
-  double valorNFICMS;
-  ValoresFaturaNFISSeNFICMS({
-    required this.valorFatura,
-    required this.valorNFISS,
-    required this.valorNFICMS,
-  });
-}
-
-List<CupomDesconto> listaCuponsDoSistema = [
-  CupomDesconto(identificadorDoCupom: "ArKlPm", valorDoDesconto: 5, isValido: true),
-];
-
-NotaFiscal notaFiscal1001 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: true, isCancelada: false, isReemisao: false);
-
+import 'objetos_teste.dart';
 
 // De acordo com o Domínio de Negócio/Escopo do seu projeto (tem que ser único - diferente dos colegas e do exemplo de aula),
 // elaborar 10 funções correlatas que tratem regras de negócio ou que de suporte a requisitos do projeto.
@@ -215,8 +112,6 @@ bool validaContraLancamento(ContraLancamento contraLancamento, NotaFiscal notaFi
   }
 }
 
-
-
 /////////////////////////////////////////////////////////
 //////////////////////Funcao 05 /////////////////////////
 /////////////////////////////////////////////////////////
@@ -239,11 +134,12 @@ NotaFiscal reemissaoDaNotaFiscal(NotaFiscal notaFiscalInicial,Fatura fatura, dou
 
 //Regra de negócio: responsável por verificar se os valor da fatura é igual a pelo menos UM dos impostos da nota fiscal.
 void confereValorFaturaENotaFiscal(NotaFiscal notaFiscal, Fatura fatura){
-  if((notaFiscal.impostoISS == fatura.valorFaturaTotal || notaFiscal.impostoICMS == fatura.valorFaturaTotal)){
+  if(notaFiscal.impostoISS == fatura.valorFaturaTotal || notaFiscal.impostoICMS == fatura.valorFaturaTotal){
+    return;
+  }else{
     throw Exception();
   }
 }
-
 
 /////////////////////////////////////////////////////////
 //////////////////////Funcao 06/////////////////////////
@@ -268,6 +164,7 @@ bool validaNotaFiscal({
 // Para validação é necessário que ela tenha sido emitida, e não pode ter sido cancelada.
 // Então usamos uma arrow function, que é responsável por verificar as duas condições
 // Aqui poderiamos usar qualquer outra verificação da nota fiscal
+// Primeiro uso do arrow function.
 var x = validaNotaFiscal(
   notaFiscal: notaFiscal1001,
   validacaoNotaFiscal: (nf) => (nf.isCancelada != true && nf.isEmitida!=false),
@@ -277,16 +174,25 @@ var x = validaNotaFiscal(
 /////////////////////////////////////////////////////////
 //////////////////////Funcao 08/////////////////////////
 /////////////////////////////////////////////////////////
-// Uma função responsável por alterar a configuração fiscal do contra lançamento
-// Quando é ligado o ABATIMENTOFISCAL do contra lançamento significa que esse valor irá interferir na fatura
-// E também na somatória de valores da notaFiscal.É uma função com parâmetro nomeado obrigatório (contraLancamento)
-ContraLancamento alteraConfiguracaoFiscal({
-  required ContraLancamento contraLancamento,
+// Uma função responsável por invalidar um cupom de desconto
+// Nós invalidamos um cupom de desconto quando ele é utilizado
+// É uma função com parâmetro nomeado obrigatório (cupomDesconto)
+CupomDesconto invalidaOCupomDeDesconto({
+  required CupomDesconto cupomDesconto,
 }) {
-  contraLancamento.abatimentoFiscal= true;
-  return contraLancamento;
+  cupomDesconto.isValido= false;
+  return cupomDesconto;
 }
 
+//Por mais que o sistema tenha regras, com uma permissão de administrador
+//É possivel obrigar o sistema a aceitar esse cupom de desconto na fatura,
+//Mesmo se o cupom não estiver mais válido.
+//Cabe ao administrador a responsabilidade de forçar o uso do cupom
+//Pois pode gerar uma fatura com valor negativo.
+void obrigaOSistemaAceitarOCupomDescontoNaFatura(CupomDesconto cupomDesconto, Fatura fatura){
+  fatura.valorFaturaTotal-=cupomDesconto.valorDoDesconto;
+  invalidaOCupomDeDesconto(cupomDesconto: cupomDesconto);
+}
 
 /////////////////////////////////////////////////////////
 //////////////////////Funcao 09/////////////////////////
@@ -302,4 +208,42 @@ CreditoFiscal criaCreditoFiscalAPartirDeContraLancamento(ContraLancamento contra
   return creditoFiscal;
 }
 
+/////////////////////////////////////////////////////////
+//////////////////////Funcao 10/////////////////////////
+/////////////////////////////////////////////////////////
+//Valida todas as notas fiscais que possuem pelo menos um valor (ICMS/ISS) positivo
+//A nota fiscal não pode ter sido cancelada
+//Ela precisa ter sido pelo menos emitida ou reemitida.
+// Segundo uso do arrow function
+var validacaoNota = validaNotaFiscal(
+  notaFiscal: notaFiscal1001,
+  validacaoNotaFiscal: (nf) => validaNotaPorCompleto(nf)==true? true:false ,
+);
 
+bool validaNotaPorCompleto(NotaFiscal notaFiscal){
+  if(validaValoresNotaFiscal(notaFiscal) && validaNaoCancelamentoNotaFiscal(notaFiscal) && validaEmissaoNotaFiscal(notaFiscal)){
+    return true;
+  }
+  return false;
+}
+
+bool validaValoresNotaFiscal(NotaFiscal notaFiscal){
+  if(notaFiscal.impostoICMS>0 || notaFiscal.impostoISS>0){
+    return true;
+  }
+  return false;
+}
+
+bool validaNaoCancelamentoNotaFiscal(NotaFiscal notaFiscal){
+  if(!notaFiscal.isCancelada){
+    return true;
+  }
+  return false;
+}
+
+bool validaEmissaoNotaFiscal(NotaFiscal notaFiscal){
+  if(notaFiscal.isEmitida==true||notaFiscal.isReemisao==true){
+    return true;
+  }
+  return false;
+}

@@ -199,7 +199,8 @@ ValoresFaturaNFISSeNFICMS? aplicaContraLancamentoNaFaturaENotaFiscal(ContraLanca
       ValoresFaturaNFISSeNFICMS valoresFaturaNFISSeNFICMS = ValoresFaturaNFISSeNFICMS(valorFatura: fatura.valorFaturaTotal, valorNFISS: notaFiscal.impostoISS, valorNFICMS: notaFiscal.impostoICMS);
       return valoresFaturaNFISSeNFICMS;
     } else {
-       throw Exception("Valor do Contra Lançamento Maior que a Fatura e/ou a NotaFiscal");
+       throw Exception();
+       // Valor do Contra Lançamento Maior que a Fatura e/ou a NotaFiscal
     }
 
 }
@@ -238,8 +239,8 @@ NotaFiscal reemissaoDaNotaFiscal(NotaFiscal notaFiscalInicial,Fatura fatura, dou
 
 //Regra de negócio: responsável por verificar se os valor da fatura é igual a pelo menos UM dos impostos da nota fiscal.
 void confereValorFaturaENotaFiscal(NotaFiscal notaFiscal, Fatura fatura){
-  if(!(notaFiscal.impostoISS == fatura.valorFaturaTotal || notaFiscal.impostoICMS == fatura.valorFaturaTotal)){
-    throw Exception("Violou uma das regras de negócio, operação de reemisão negada.");
+  if((notaFiscal.impostoISS == fatura.valorFaturaTotal || notaFiscal.impostoICMS == fatura.valorFaturaTotal)){
+    throw Exception();
   }
 }
 
@@ -253,10 +254,10 @@ void confereValorFaturaENotaFiscal(NotaFiscal notaFiscal, Fatura fatura){
 
 bool validaNotaFiscal({
   required NotaFiscal notaFiscal,
-  required Function(NotaFiscal) validacaoNotaFiscal,
+  required Function(NotaFiscal notaFiscal) validacaoNotaFiscal,
 }) {
   if (!validacaoNotaFiscal(notaFiscal)) {
-      throw Exception("NotaFiscal Inválida.");
+      throw Exception();
   }
   return true;
 }

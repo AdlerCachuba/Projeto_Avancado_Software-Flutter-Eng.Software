@@ -12,6 +12,7 @@ void main() {
   NotaFiscal notaFiscal1001 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: true, isCancelada: false, isReemisao: false);
   NotaFiscal notaFiscal1002 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: true, isCancelada: false, isReemisao: false);
   NotaFiscal notaFiscal1003 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: true, isCancelada: false, isReemisao: false);
+  NotaFiscal notaFiscal1004 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: true, isCancelada: false, isReemisao: false);
 
   NotaFiscal notaFiscal4004 = NotaFiscal(impostoISS: 100, impostoICMS: 100, isEmitida: false, isCancelada: true, isReemisao: false);
 
@@ -139,14 +140,14 @@ void main() {
 
   group('ContraLancamento sem abatimento fiscal que não são válidos e geram erros', (){
     test('Testa com o contra lançamento sem abatimento fiscal com valor superior a NF e Fatura', () {
-      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoSemAbatimentoFiscalValorSuperior,notaFiscal1001,faturaComValor100), Exception("Valor do Contra Lançamento Maior que a Fatura e/ou a NotaFiscal"));
+      expect(()=> aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoSemAbatimentoFiscalValorSuperior,notaFiscal1001,faturaComValor100), throwsException);
     });
 
   });
 
   group('ContraLancamento com abatimento fiscal que não são válidos e geram erros', (){
     test('Testa com o contra lançamento com abatimento fiscal com valor superior a NF e Fatura', () {
-      expect(aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoComAbatimentoFiscalValorSuperior,notaFiscal1001,faturaComValor100), Exception("Valor do Contra Lançamento Maior que a Fatura e/ou a NotaFiscal"));
+      expect(()=> aplicaContraLancamentoNaFaturaENotaFiscal(contraLancamentoComAbatimentoFiscalValorSuperior,notaFiscal1001,faturaComValor100), throwsException);
     });
   });
 
@@ -190,9 +191,10 @@ void main() {
     });
   });
 
+  // aqui espera uma Instance of 'Exception', não consegui arrumar isso
   group('Testes que geram erro na Reemisao da nota fiscal', (){
     test('Fatura com valor diferente dos valores da nota fiscal', () {
-      expect(reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor200, 50, 50), Exception("Violou uma das regras de negócio, operação de reemisão negada."));
+      expect(()=> reemissaoDaNotaFiscal(notaFiscal1001, faturaComValor200, 50, 50),throwsException);
     });
   });
 
@@ -204,7 +206,7 @@ void main() {
   group('Testes responsáveis por validar a notaFiscal ', (){
     test('Teste usando a arrow function para validar que a nota não foi cancelada e sim emitida', () {
       expect(validaNotaFiscal(
-        notaFiscal: notaFiscal1001,
+        notaFiscal: notaFiscal1004,
         validacaoNotaFiscal: (nf) => (nf.isCancelada != true && nf.isEmitida!=false),
       ),true);
     });
@@ -214,10 +216,10 @@ void main() {
 // Para validação é necessário que ela tenha sido emitida, e não pode ter sido cancelada.
   group('Testes responsáveis por gerar exceção na validação da notaFiscal ', (){
     test('Teste que gera exceção ao tentar validar a nota fiscal', () {
-      expect(validaNotaFiscal(
+      expect( () => validaNotaFiscal(
         notaFiscal: notaFiscal4004,
         validacaoNotaFiscal: (nf) => (nf.isCancelada != true && nf.isEmitida!=false),
-      ),throw Exception("NotaFiscal Inválida."));
+      ),throwsException);
     });
   });
 

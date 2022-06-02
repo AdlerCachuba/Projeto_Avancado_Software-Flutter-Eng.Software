@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'objetos_teste.dart';
-
 // De acordo com o Domínio de Negócio/Escopo do seu projeto (tem que ser único - diferente dos colegas e do exemplo de aula),
 // elaborar 10 funções correlatas que tratem regras de negócio ou que de suporte a requisitos do projeto.
 // As funções elaboradas deverá possuir:
@@ -22,7 +21,7 @@ import 'objetos_teste.dart';
 /////////////////////////////////////////////////////////
 ////////////////////Função 01////////////////////////////
 /////////////////////////////////////////////////////////
-//Criar função para criar o cupom de desconto e adicionar na lista de cupons válidos
+//Função responsável por criar o cupom de desconto e adicionar na lista de cupons válidos
 //É passado por parametro a lista dos cupons válidos a ser adicionado, e o valor do cupom que deseja ser criado.
 //E retorna o cupom de desconto
 CupomDesconto criaCupomDeDesconto(List<CupomDesconto> listaDeCuponsValidos, double valorDoCupom){
@@ -81,7 +80,7 @@ NotaFiscal emiteNotaFiscalDoProduto({required Produto produto, DescontoFiscal? d
 // Todos os contras lançamentos que possuem abatimentoFiscal como true irão descontar o imposto ISS da NF.
 // Todos contra-lançamentos abatem no valor da fatura.
 // Caso o contraLançamento NÃO SEJA VALIDADO será gerado uma exceção.
-//A função retornar a classe ValoresFaturaNFISSeNFICMS usada para armazenar os valores quando aplicado um contra lançamento.
+// A função retorna a classe ValoresFaturaNFISSeNFICMS usada para armazenar os valores quando aplicado um contra lançamento.
 //
 // O motivo de existir essa classe de retorno é : Retornar dados que são armazenados no histórico após
 // usar um contra lançamento, útil para possiveis auditorias e também facilita para testar a função
@@ -214,7 +213,8 @@ CreditoFiscal criaCreditoFiscalAPartirDeContraLancamento(ContraLancamento contra
 //Valida todas as notas fiscais que possuem pelo menos um valor (ICMS/ISS) positivo
 //A nota fiscal não pode ter sido cancelada
 //Ela precisa ter sido pelo menos emitida ou reemitida.
-// Segundo uso do arrow function
+//Caso não satisfaça todas as condições, será gerado uma exceção
+//Segundo uso do arrow function
 var validacaoNota = validaNotaFiscal(
   notaFiscal: notaFiscal1001,
   validacaoNotaFiscal: (nf) => validaNotaPorCompleto(nf)==true? true:false ,

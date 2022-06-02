@@ -1,4 +1,3 @@
-
 class CupomDesconto {
   String identificadorDoCupom;
   double valorDoDesconto;

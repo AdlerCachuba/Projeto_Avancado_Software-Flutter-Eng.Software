@@ -1,10 +1,9 @@
-
 import 'avaliacao.dart';
 import 'objetos_teste.dart';
 import 'package:test/test.dart';
 
 void main() {
-  //TESTE PARA FUNÇÃO 01 - CRIA CUPOM DE DESCONTO
+  //TESTES PARA FUNÇÃO 01 - CRIA CUPOM DE DESCONTO
   group('Testa o método que gera o cupom', (){
     test('Verifica se o tamanho da geração do cupom padrão gera 8 identificadores.', () {
       expect(gerarCodigoAleatorioConformeTamanho().length,8 );
@@ -26,7 +25,7 @@ void main() {
     });
   });
 
-  //TESTE PARA FUNÇÃO 02 - Função responsável por validar o cupom e aplicar ele na fatura.
+  //TESTES PARA FUNÇÃO 02 - Função responsável por validar o cupom e aplicar ele na fatura.
   //Após essa aplicação o cupom passa o estado de isValido para false
   group('Testa a utilização do cupom na fatura', (){
     test('Verifica se o cupom de desconto fica invalidado após usar na fatura', () {
@@ -39,7 +38,7 @@ void main() {
   });
 
 
-  //TESTE PARA FUNÇÃO 03 -
+  // TESTES PARA FUNÇÃO 03 -
   // Se existe um desconto a ser aplicado no valor da nota fiscal,
   // Esse mesmo desconto deve ser aplicado na nota fiscal do produto do mesmo imposto
   // Caso o desconto seja de outra origem do imposto, ele não poderá ser aplicado para emitir a NF.
@@ -79,14 +78,14 @@ void main() {
     });
   });
 
-  //TESTE PARA FUNÇÃO 04 -
-// Todos os contras lançamentos que possuem abatimentoFiscal como true irão descontar o imposto ISS da NF.
-// Todos contra-lançamentos abatem no valor da fatura.
-// Caso o contraLançamento NÃO SEJA VALIDADO será gerado uma exceção.
-//A função retornar a classe ValoresFaturaNFISSeNFICMS usada para armazenar os valores quando aplicado um contra lançamento.
-//
-//  O motivo de existir essa classe de retorno é : Retornar dados que são armazenados no histórico após
-//  usar um contra lançamento, útil para possiveis auditorias e também facilita para testar a função
+  // TESTES PARA FUNÇÃO 04 -
+  // Todos os contras lançamentos que possuem abatimentoFiscal como true irão descontar o imposto ISS da NF.
+  // Todos contra-lançamentos abatem no valor da fatura.
+  // Caso o contraLançamento NÃO SEJA VALIDADO será gerado uma exceção.
+  // A função retorna a classe ValoresFaturaNFISSeNFICMS usada para armazenar os valores quando aplicado um contra lançamento.
+  //
+  // O motivo de existir essa classe de retorno é : Retornar dados que são armazenados no histórico após
+  // usar um contra lançamento, útil para possiveis auditorias e também facilita para testar a função
 
   group('ContraLancamento COM abatimento fiscal', (){
     test('Testa se o valor abateu na fatura', () {
@@ -141,12 +140,12 @@ void main() {
     });
   });
 
-  //TESTE PARA FUNÇÃO 05 -
+  // TESTES PARA FUNÇÃO 05 -
   // UMA NOTA FISCAL SÓ PODE SER RE-EMITIDA SE O VALOR DA FATURA E DE um dos valores de imposto da NOTA FISCAL FOREM IGUAIS!
-// Caso contrário é obrigatório gerar uma exceção.
-// Quando nós fazemos uma re-emição da nota fiscal nós alteramos o atributo da nota fiscal anterior de isCancelada para true.
-// E emitimos uma nova nota fiscal, com o atributo de isReemisao para true.
-// Isso é utilizado para o envio de pulsos de comunicação com o SAP para valida o CAR (Contas a receber)
+  // Caso contrário é obrigatório gerar uma exceção.
+  // Quando nós fazemos uma re-emição da nota fiscal nós alteramos o atributo da nota fiscal anterior de isCancelada para true.
+  // E emitimos uma nova nota fiscal, com o atributo de isReemisao para true.
+  // Isso é utilizado para o envio de pulsos de comunicação com o SAP para valida o CAR (Contas a receber)
 
   group('Testes de Reemisao da nota fiscal', (){
     test('Testa se a nova nota fiscal criada foi emitida', () {
@@ -166,18 +165,16 @@ void main() {
     });
   });
 
-  // aqui espera uma Instance of 'Exception', não consegui arrumar isso
   group('Testes que geram erro na Reemisao da nota fiscal', (){
     test('Fatura com valor diferente dos valores da nota fiscal', () {
       expect(()=> reemissaoDaNotaFiscal(notaFiscal6006, faturaComValor200, 50, 50),throwsException);
     });
   });
 
-
-  //TESTES PARA FUNÇÃO 06 e 07
+  // TESTES PARA FUNÇÃO 06 e 07
   // É uma função com parâmetros obrigatórios e
-// nomeados que são responsáveis por validar a NotaFiscal
-// Nele é passado uma função, que vai realizar a validação.
+  // nomeados que são responsáveis por validar a NotaFiscal
+  // Nele é passado uma função, que vai realizar a validação.
   group('Testes responsáveis por validar a notaFiscal ', (){
     test('Teste usando a arrow function para validar que a nota não foi cancelada e sim emitida', () {
       expect(validaNotaFiscal(
@@ -188,7 +185,7 @@ void main() {
   });
 
 
-// Para validação é necessário que ela tenha sido emitida, e não pode ter sido cancelada.
+//Para validação é necessário que ela tenha sido emitida, e não pode ter sido cancelada.
   group('Testes responsáveis por gerar exceção na validação da notaFiscal ', (){
     test('Teste que gera exceção ao tentar validar a nota fiscal', () {
       expect( () => validaNotaFiscal(
@@ -226,10 +223,9 @@ void main() {
     });
   });
 
-  //TESTES PARA FUNÇÃO 09
-  //Função responsável por receber um ContraLancamento e e devolver um CréditoFiscal
-//Só é permitido devolver um crédito fiscal se o abatimentoFiscal desse contraLancamento estiver como TRUE
-//  criaCreditoFiscalAPartirDeContraLancamento
+  // TESTES PARA FUNÇÃO 09
+  // Função responsável por receber um ContraLancamento e e devolver um CréditoFiscal
+  // Só é permitido devolver um crédito fiscal se o abatimentoFiscal desse contraLancamento estiver como TRUE
   group('Testando a criação de crédito fiscal a partir de um contra lançamento', (){
    test('Valida que a criação do e crédito e o valor, a partir de um contra lançamento com abatimento fiscal', () {
       expect(criaCreditoFiscalAPartirDeContraLancamento(contraLancamentoComAbatimentoFiscal1002).valorFiscal,20);
@@ -243,8 +239,10 @@ void main() {
   });
 
   //TESTES PARA FUNÇÃO 10
-  //notaFiscalInvalida1001
-
+  //Valida todas as notas fiscais que possuem pelo menos um valor (ICMS/ISS) positivo
+  //A nota fiscal não pode ter sido cancelada
+  //Ela precisa ter sido pelo menos emitida ou reemitida.
+  //Caso não satisfaça todas as condições, será gerado uma exceção
   group('Testando a validação da nota fiscal', (){
     test('Testa se a nota fiscal é válida', () {
       expect(validaNotaFiscal(notaFiscal: notaFiscal5005,validacaoNotaFiscal: validaNotaPorCompleto),true);
